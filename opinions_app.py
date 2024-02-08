@@ -49,7 +49,12 @@ def index_view():
     # И определяется случайный объект
     opinion = Opinion.query.offset(offset_value).first()
     # Вот здесь в шаблон передаётся весь объект opinion
-    return render_template('index.html', opinion=opinion)
+    return render_template('opinion.html', opinion=opinion)
+
+
+@app.route('/add')
+def add_opinion_view():
+    return render_template('add_opinion.html')
 
 
 if __name__ == '__main__':

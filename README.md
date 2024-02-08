@@ -34,6 +34,10 @@ python3 -m pip install --upgrade pip
 ```
 pip install -r requirements.txt
 ```
+Обновить зависимости 
+```
+pip freeze > requirements.txt
+```
 
 Запустить проект:
 

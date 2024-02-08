@@ -4,7 +4,7 @@ from datetime import datetime
 from random import randrange
 
 # Добавлена функция render_template
-from flask import Flask, render_template
+from flask import Flask, redirect, render_template, url_for
 # Импортируется нужный класс для работы с ORM
 from flask_sqlalchemy import SQLAlchemy
 # Новые импорты
@@ -75,9 +75,26 @@ def index_view():
     return render_template('opinion.html', opinion=opinion)
 
 
-@app.route('/add')
+@app.route('/add', methods=['GET', 'POST'])
 def add_opinion_view():
-    return render_template('add_opinion.html')
+    # Вот тут создаётся новый экземпляр формы
+    form = OpinionForm()
+    # Если ошибок не возникло, то
+    if form.validate_on_submit():
+        # нужно создать новый экземпляр класса Opinion
+        opinion = Opinion(
+            title=form.title.data,
+            text=form.text.data,
+            source=form.source.data
+        )
+        # Затем добавить его в сессию работы с базой данных
+        db.session.add(opinion)
+        # И зафиксировать изменения
+        db.session.commit()
+        # Затем перейти на страницу добавленного мнения
+        return redirect(url_for('opinion_view', id=opinion.id))
+    # Иначе просто отрисовать страницу с формой
+    return render_template('add_opinion.html', form=form)
 
 
 # Тут указывается конвертер пути для id

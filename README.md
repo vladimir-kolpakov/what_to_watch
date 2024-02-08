@@ -38,5 +38,8 @@ pip install -r requirements.txt
 Запустить проект:
 
 ```
+FLASK_APP=opinions_app
+```
+```
 flask run
 ```

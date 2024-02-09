@@ -4,9 +4,10 @@ from datetime import datetime
 from random import randrange
 
 # Добавлена функция render_template
-from flask import Flask, redirect, render_template, url_for
+from flask import Flask, redirect, render_template, url_for, flash, abort
 # Импортируется нужный класс для работы с ORM
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 # Новые импорты
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, URLField
@@ -24,6 +25,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'MY SECRET KEYdfgfgfdgfdfdsfsdertgfnhytree'
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 class Opinion(db.Model):
@@ -39,6 +41,8 @@ class Opinion(db.Model):
     # Дата и время — текущее время,
     # по этому столбцу база данных будет проиндексирована
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    # Новое поле
+    added_by = db.Column(db.String(64))
 
 
 # Класс формы опишите сразу после модели Opinion
@@ -59,14 +63,29 @@ class OpinionForm(FlaskForm):
     submit = SubmitField('Добавить')
 
 
+# Тут декорируется обработчик и указывается код нужной ошибки
+@app.errorhandler(404)
+def page_not_found(error):
+    # В качестве ответа возвращается собственный шаблон
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    # В таких случаях можно откатить незафиксированные изменения в БД
+    db.session.rollback()
+    return render_template('500.html'), 500
+
+
 @app.route('/')
 def index_view():
     # Определяется количество мнений в базе данных
     quantity = Opinion.query.count()
     # Если мнений нет,
     if not quantity:
+        abort(404)
         # то возвращается сообщение
-        return 'В базе данных мнений о фильмах нет.'
+        # return 'В базе данных мнений о фильмах нет.'
     # Иначе выбирается случайное число в диапазоне от 0 и до quantity
     offset_value = randrange(quantity)
     # И определяется случайный объект
@@ -81,6 +100,13 @@ def add_opinion_view():
     form = OpinionForm()
     # Если ошибок не возникло, то
     if form.validate_on_submit():
+        text = form.text.data
+        # Если в БД уже есть мнение с текстом, который ввёл пользователь,
+        if Opinion.query.filter_by(text=text).first() is not None:
+            # вызвать функцию flash и передать соответствующее сообщение
+            flash('Такое мнение уже было оставлено ранее!')
+            # и вернуть пользователя на страницу «Добавить новое мнение»
+            return render_template('add_opinion.html', form=form)
         # нужно создать новый экземпляр класса Opinion
         opinion = Opinion(
             title=form.title.data,

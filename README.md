@@ -46,4 +46,9 @@ FLASK_APP=opinions_app
 ```
 ```
 flask run
+
+```
+Создайте репозиторий 
+```
+flask db init
 ```

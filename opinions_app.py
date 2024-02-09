@@ -1,15 +1,15 @@
 # what_to_watch/opinions_app.py
+import csv
 from datetime import datetime
 # Импортируется функция выбора случайного значения
 from random import randrange
-import csv
-import click
 
+import click
 # Добавлена функция render_template
-from flask import Flask, redirect, render_template, url_for, flash, abort
+from flask import Flask, abort, flash, redirect, render_template, url_for
+from flask_migrate import Migrate
 # Импортируется нужный класс для работы с ORM
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 # Новые импорты
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, URLField

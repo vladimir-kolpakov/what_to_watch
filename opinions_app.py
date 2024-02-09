@@ -27,6 +27,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'MY SECRET KEYdfgfgfdgfdfdsfsdertgfnhytree'
 
 db = SQLAlchemy(app)
+
 migrate = Migrate(app, db)
 
 

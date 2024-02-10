@@ -13,4 +13,4 @@ def get_opinion(id):
     # Получить объект по id или выбросить ошибку
     opinion = Opinion.query.get_or_404(id)
     # Конвертировать данные в JSON и вернуть объект и код ответа API
-    return jsonify({'opinion': opinion}), 200
+    return jsonify({'opinion': opinion.to_dict()}), 200
